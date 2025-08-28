@@ -5,12 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>iamfardinsk — Developer</title>
   <meta name="description" content="Personal developer profile for iamfardinsk — projects, skills, and contact links." />
-  
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%230a0a0a'/><text x='50' y='58' font-size='52' fill='%23ffffff' text-anchor='middle' font-family='Arial, Helvetica, sans-serif'>F</text></svg>">
-  
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-  
+  <!-- Icons for socials -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <!-- jsPDF for invoices -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     :root {
       --bg: #0b0f14;
@@ -22,6 +21,8 @@
       --accent: #88ffc5;
       --ring: rgba(110,168,254,.4);
       --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --success: #22c55e;
+      --danger: #ef4444;
     }
     [data-theme="light"] {
       --bg: #f7f9fc;
@@ -33,6 +34,8 @@
       --accent: #059669;
       --ring: rgba(29,78,216,.25);
       --shadow: 0 10px 30px rgba(2,6,23,.12);
+      --success: #16a34a;
+      --danger: #dc2626;
     }
 
     * { box-sizing: border-box }
@@ -45,6 +48,7 @@
                   var(--bg);
       color: var(--text);
       line-height: 1.6;
+      transition: background-color .35s ease, color .35s ease;
     }
     a { color: inherit; text-decoration: none }
     .wrap { max-width: 1100px; margin: 0 auto; padding: 32px 20px 64px }
@@ -61,127 +65,77 @@
 
     .toggle { border: 1px solid rgba(255,255,255,.1); background: var(--card); color: var(--text);
       padding: 10px 14px; border-radius: 14px; cursor: pointer; box-shadow: var(--shadow);
+      transition: background-color .3s ease, color .3s ease, border-color .3s ease;
     }
 
-    .hero {
-      display: grid; grid-template-columns: 1.1fr .9fr; gap: 28px; align-items: center; margin-top: 36px;
-    }
-    .hero-card {
-      background: linear-gradient(180deg, var(--card), var(--bg-soft));
-      border: 1px solid rgba(255,255,255,.06); border-radius: 24px; padding: 28px; box-shadow: var(--shadow);
-    }
+    .hero { display: grid; grid-template-columns: 1.1fr .9fr; gap: 28px; align-items: center; margin-top: 36px; }
+    .hero-card { background: linear-gradient(180deg, var(--card), var(--bg-soft)); border: 1px solid rgba(255,255,255,.06); border-radius: 24px; padding: 28px; box-shadow: var(--shadow); animation: fadeUp .6s ease both; }
     .h1 { font-size: clamp(28px, 4.5vw, 44px); line-height: 1.15; margin: 0 0 12px; }
     .lead { color: var(--muted); font-size: clamp(16px, 2vw, 18px); margin-bottom: 18px; }
 
-    .pill {
-      display: inline-flex; gap: 8px; align-items: center; padding: 8px 12px; border-radius: 999px;
-      border: 1px solid rgba(255,255,255,.08); background: var(--bg-soft);
-    }
+    .pill { display: inline-flex; gap: 8px; align-items: center; padding: 8px 12px; border-radius: 999px; border: 1px solid rgba(255,255,255,.08); background: var(--bg-soft); }
 
     .actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px }
-    .btn {
-      padding: 12px 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,.1);
-      background: var(--brand); color: white; font-weight: 700; letter-spacing: .2px; cursor: pointer;
-      box-shadow: var(--shadow);
-    }
+    .btn { padding: 12px 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,.1); background: var(--brand); color: white; font-weight: 700; letter-spacing: .2px; cursor: pointer; box-shadow: var(--shadow); }
     .btn.alt { background: transparent; color: var(--text); backdrop-filter: blur(6px); }
     .btn.alt:hover { border-color: var(--brand) }
 
-    .pfp {
-      aspect-ratio: 1 / 1; border-radius: 24px; background: linear-gradient(135deg, rgba(110,168,254,.2), rgba(136,255,197,.2));
-      border: 1px solid rgba(255,255,255,.08); display: grid; place-items: center;
-    }
-    .pfp svg { width: 48%; height: 48%; opacity: .8 }
+    /* Avatar */
+    .pfp { display: grid; place-items: center; aspect-ratio: 1/1; border-radius: 9999px; background: radial-gradient(120px 120px at 50% 0%, rgba(110,168,254,.22), transparent 65%); border: 1px solid rgba(255,255,255,.08); box-shadow: var(--shadow); overflow: hidden; animation: fadeUp .7s ease .05s both; }
+    .avatar-wrap { position: relative; width: 190px; height: 190px; border-radius: 50%; padding: 6px; background: linear-gradient(45deg, rgba(110,168,254,.5), rgba(136,255,197,.5)); }
+    .avatar-img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 3px solid rgba(255,255,255,.15); transition: transform .25s ease, box-shadow .25s ease; }
+    .avatar-wrap:hover .avatar-img { transform: scale(1.04); box-shadow: 0 0 22px rgba(110,168,254,.55); }
 
     .section { margin-top: 42px }
     .grid { display: grid; gap: 16px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    .card { background: linear-gradient(180deg, var(--card), var(--bg-soft)); padding: 18px; border-radius: 20px; border: 1px solid rgba(255,255,255,.06); box-shadow: var(--shadow); }
-    .card h3 { margin: 4px 0 10px }
+    .card { background: linear-gradient(180deg, var(--card), var(--bg-soft)); padding: 18px; border-radius: 20px; border: 1px solid rgba(255,255,255,.06); box-shadow: var(--shadow); animation: fadeUp .6s ease both; }
+    .card:nth-child(2){animation-delay:.05s}.card:nth-child(3){animation-delay:.1s}
     .stack { display: flex; gap: 8px; flex-wrap: wrap; }
     .tag { padding: 6px 10px; border-radius: 10px; background: var(--bg-soft); border: 1px solid rgba(255,255,255,.06); font-size: 13px; color: var(--muted) }
 
-    .socials { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; margin-top: 14px }
-    .social {
-      display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 14px; border: 1px solid rgba(255,255,255,.06);
-      background: var(--card); transition: transform .12s ease, border-color .2s ease; box-shadow: var(--shadow);
-    }
-    .social:hover { transform: translateY(-2px); border-color: var(--brand) }
-    .social svg { width: 18px; height: 18px; opacity: .9 }
+    /* Socials */
+    .socials { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin-top: 14px }
+    .social { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 14px; border: 1px solid rgba(255,255,255,.06); background: var(--card); transition: transform .12s ease, border-color .2s ease, box-shadow .2s ease; box-shadow: var(--shadow); animation: fadeUp .5s ease both; }
+    .social:hover { transform: translateY(-2px); border-color: var(--brand); box-shadow: 0 10px 30px rgba(110,168,254,.15) }
+    .social i { width: 18px; height: 18px; opacity: .95 }
 
-    .pay-box {
-      margin-top: 20px;
-      padding: 20px;
-      border-radius: 20px;
-      background: var(--card);
-      border: 1px solid rgba(255,255,255,.06);
-      box-shadow: var(--shadow);
-    }
-    .pay-btn {
-      display: inline-block;
-      padding: 12px 18px;
-      border-radius: 12px;
-      background: var(--accent);
-      color: #000;
-      font-weight: bold;
-      margin-top: 10px;
-      text-align: center;
-    }
+    /* Payments */
+    .pay-box { margin-top: 20px; padding: 20px; border-radius: 20px; background: var(--card); border: 1px solid rgba(255,255,255,.06); box-shadow: var(--shadow); animation: fadeUp .6s ease .05s both; }
+    .input-row { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 10px; margin: 10px 0 6px }
+    .input { width: 100%; padding: 12px 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,.08); background: var(--bg-soft); color: var(--text); outline: none; transition: border-color .2s ease, box-shadow .2s ease; }
+    .input:focus { border-color: var(--brand); box-shadow: 0 0 0 4px var(--ring) }
+    .pay-cta { display:flex; gap:10px; flex-wrap: wrap; margin-top: 10px }
+    .pay-btn { display: inline-flex; align-items:center; gap:8px; padding: 12px 18px; border-radius: 12px; background: var(--accent); color: #000; font-weight: 800; letter-spacing:.2px; text-align: center; border: none; cursor: pointer; }
+    .pay-btn .spinner { display:none; width:16px; height:16px; border:3px solid rgba(0,0,0,.25); border-top-color:#000; border-radius:50%; animation: spin .8s linear infinite }
+    .pay-btn.loading .spinner { display:inline-block }
+    .pay-btn.pulse { animation: pulse 2.2s ease-in-out infinite }
+
+    /* Modal */
+    .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.45); backdrop-filter: blur(4px); display: none; align-items:center; justify-content:center; z-index: 40 }
+    .modal { width: min(520px, 92vw); background: var(--card); color: var(--text); border: 1px solid rgba(255,255,255,.08); border-radius: 18px; padding: 20px; box-shadow: var(--shadow); }
+    .modal header { display:flex; align-items:center; justify-content:space-between }
+    .modal .actions { justify-content: flex-end }
+    .close { background: transparent; border:1px solid rgba(255,255,255,.12); color: var(--text); border-radius: 10px; padding: 8px 12px; cursor: pointer }
+
+    /* Admin */
+    #admin { margin-top: 48px; display:none }
+    .toolbar { display:flex; gap:10px; align-items:center; margin: 10px 0 }
+    table { width:100%; border-collapse: collapse; }
+    th, td { text-align:left; padding:10px 12px; border-bottom: 1px solid rgba(255,255,255,.06) }
+    th { color: var(--muted); font-weight: 700 }
+    .export-btn { padding: 10px 14px; border-radius: 10px; border: 1px solid rgba(255,255,255,.12); background: var(--bg-soft); color: var(--text); cursor:pointer }
 
     .footer { opacity: .75; font-size: 14px; margin-top: 36px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px }
 
+    @keyframes fadeUp{from{opacity:0; transform: translateY(10px)}to{opacity:1; transform:none}}
+    @keyframes spin{to{transform: rotate(360deg)}}
+    @keyframes pulse{0%,100%{transform:scale(1)}50%{transform: scale(1.04)}}
+
     @media (max-width: 860px) {
       .hero { grid-template-columns: 1fr; }
+      .input-row{ grid-template-columns: 1fr }
+      .grid{ grid-template-columns: 1fr }
     }
-
-.pfp {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 20px auto;
-}
-
-.avatar-img {
-  width: 480px;
-  height: 480px;
-  border-radius: 50%; /* Circular frame */
-  border: 4px solid #4CAF50; /* Green border */
-  object-fit: cover;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.avatar-img:hover {
-  transform: scale(1.1);
-  box-shadow: 0 0 20px rgba(76, 175, 80, 0.6); /* Glow effect */
-}
-
-    .social-connect {
-  text-align: center;
-  margin: 40px 0;
-}
-
-.social-connect h2 {
-  font-size: 1.8rem;
-  margin-bottom: 10px;
-}
-
-.social-connect p {
-  margin-bottom: 20px;
-  font-size: 1rem;
-  color: #666;
-}
-
-.social-icons a {
-  margin: 0 10px;
-  font-size: 2rem;
-  color: #333;
-  transition: color 0.3s ease, transform 0.3s ease;
-}
-
-.social-icons a:hover {
-  color: #4CAF50;
-  transform: scale(1.2);
-}
-
   </style>
 </head>
 <body>
@@ -211,40 +165,18 @@
         </div>
       </section>
       <aside class="pfp" aria-label="avatar">
-        <!-- Replace 'your-dp.jpg' with your photo -->
-  <img src="DP/Google-Play-DP.jpg" alt="iamfardinsk Profile Photo" 
-       class="avatar-img" />
-        
-          <circle cx="12" cy="8" r="4" />
-          <path d="M4 20c2.5-3 5.5-4.5 8-4.5S17.5 17 20 20" />
-        </svg>
+        <div class="avatar-wrap">
+          <img id="avatarImg" src="your-dp.jpg" alt="iamfardinsk profile" class="avatar-img"/>
+        </div>
       </aside>
     </main>
 
-    <section id="projects" class="section">
+    <section class="section" id="projects">
       <h2>Featured Projects</h2>
       <div class="grid">
-        <div class="card">
-          <h3>VantaBlack — Private Search</h3>
-          <p class="lead">A privacy‑focused, customizable search experience with background YouTube playback, voice search, and ad‑blocking.</p>
-          <div class="stack">
-            <span class="tag">TypeScript</span><span class="tag">React</span><span class="tag">Vite</span><span class="tag">Service Workers</span>
-          </div>
-        </div>
-        <div class="card">
-          <h3>File Converter Web App</h3>
-          <p class="lead">Drag‑and‑drop conversions with progress, dark mode, and smart format detection backed by Node/Python microservices.</p>
-          <div class="stack">
-            <span class="tag">Node.js</span><span class="tag">Python</span><span class="tag">FFmpeg</span><span class="tag">Docker</span>
-          </div>
-        </div>
-        <div class="card">
-          <h3>Tic‑Tac‑Toe Pro</h3>
-          <p class="lead">A polished game with sounds, animations, score tracking, and a Minimax‑powered AI with difficulty modes.</p>
-          <div class="stack">
-            <span class="tag">HTML</span><span class="tag">CSS</span><span class="tag">JavaScript</span>
-          </div>
-        </div>
+        <div class="card"><h3>VantaBlack — Private Search</h3><p class="lead">A privacy‑focused, customizable search experience with background YouTube playback, voice search, and ad‑blocking.</p><div class="stack"><span class="tag">TypeScript</span><span class="tag">React</span><span class="tag">Vite</span><span class="tag">Service Workers</span></div></div>
+        <div class="card"><h3>File Converter Web App</h3><p class="lead">Drag‑and‑drop conversions with progress, dark mode, and smart format detection backed by Node/Python microservices.</p><div class="stack"><span class="tag">Node.js</span><span class="tag">Python</span><span class="tag">FFmpeg</span><span class="tag">Docker</span></div></div>
+        <div class="card"><h3>Tic‑Tac‑Toe Pro</h3><p class="lead">A polished game with sounds, animations, score tracking, and a Minimax‑powered AI with difficulty modes.</p><div class="stack"><span class="tag">HTML</span><span class="tag">CSS</span><span class="tag">JavaScript</span></div></div>
       </div>
     </section>
 
@@ -252,24 +184,13 @@
       <h2>Connect with me</h2>
       <p class="lead">Find me around the web. DMs open for collaboration ✨</p>
       <div class="socials">
-        <!-- Social links here -->
-        
-    <a href="https://twitter.com/itsmefardin" target="_blank" aria-label="Twitter">
-      <i class="fab fa-twitter"></i>
-    </a>
-    <a href="https://github.com/omaairsk" target="_blank" aria-label="GitHub">
-      <i class="fab fa-github"></i>
-    </a>
-    <a href="https://linkedin.com/in/iamfardinsk" target="_blank" aria-label="LinkedIn">
-      <i class="fab fa-linkedin"></i>
-    </a>
-          <a href="https://www.instagram.com/iamfardinsk" target="_blank" aria-label="Instagram">
-      <i class="fab fa-instagram"></i>
-    </a>
-    <a href="mailto:info.developerfardin@gmail.com" aria-label="Email">
-      <i class="fas fa-envelope"></i>
-    </a>
-  </div>
+        <a class="social" href="intent://instagram.com/iamfardinsk#Intent;package=com.instagram.android;scheme=https;end" target="_blank" aria-label="Instagram"><i class="fa-brands fa-instagram"></i> Instagram</a>
+        <a class="social" href="intent://twitter.com/itsmefardin#Intent;package=com.twitter.android;scheme=https;end" target="_blank" aria-label="Twitter"><i class="fa-brands fa-x-twitter"></i> Twitter/X</a>
+        <a class="social" href="intent://www.youtube.com/@iamfardinsk#Intent;package=com.google.android.youtube;scheme=https;end" target="_blank" aria-label="YouTube"><i class="fa-brands fa-youtube"></i> YouTube</a>
+        <a class="social" href="https://github.com/omaairsk" target="_blank" aria-label="GitHub"><i class="fa-brands fa-github"></i> GitHub</a>
+        <a class="social" href="intent://www.linkedin.com/in/iamfardinsk#Intent;package=com.linkedin.android;scheme=https;end" target="_blank" aria-label="LinkedIn"><i class="fa-brands fa-linkedin"></i> LinkedIn</a>
+        <a class="social" href="mailto:info.developerfardin@gmail.com" aria-label="Email"><i class="fa-solid fa-envelope"></i> Email</a>
+        <a class="social" href="intent://details?id=com.example.app#Intent;package=com.android.vending;scheme=market;end" target="_blank" aria-label="Play Store"><i class="fa-brands fa-google-play"></i> Play Store</a>
       </div>
     </section>
 
@@ -277,9 +198,33 @@
       <h2>Support & Payments</h2>
       <p class="lead">Want to hire me or support my work? You can make secure payments below.</p>
       <div class="pay-box">
-        <p><strong>Hire / Support:</strong></p>
-        <a class="pay-btn" href="https://www.paypal.com/paypalme/iamfardinsk" target="_blank">Pay with PayPal</a><br>
-        <a class="pay-btn" href="https://buymeacoffee.com/iamfardinsk" target="_blank">Buy Me a Coffee ☕</a>
+        <div class="input-row">
+          <input id="payerName" class="input" placeholder="Customer name" />
+          <input id="payerEmail" class="input" type="email" placeholder="Email (for invoice)" />
+          <input id="amountInr" class="input" type="number" min="1" step="1" placeholder="Amount (INR)" />
+        </div>
+        <div class="pay-cta">
+          <button id="payNow" class="pay-btn pulse"><span class="spinner" aria-hidden="true"></span> 💳 Pay Now</button>
+          <a class="pay-btn" href="upi://pay?pa=9434880573@okbizaxis&pn=Iamfardinsk&mc=7372&aid=uGICAgICL0trARQ&tr=BCR2DN6TWP4PR3T6&am=100&cu=INR">UPI / GPay</a>
+          <a class="pay-btn" href="intent://paypal.me/itsmefardin#Intent;package=com.paypal.android.p2pmobile;scheme=https;end" target="_blank">PayPal</a>
+          <a class="pay-btn" href="https://buy.stripe.com/test_12345" target="_blank">Stripe</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Admin Dashboard -->
+    <section id="admin" class="section">
+      <h2>Admin Dashboard</h2>
+      <div class="toolbar">
+        <input id="searchPayments" class="input" placeholder="Search name/email/txn" style="max-width: 320px;"/>
+        <button id="exportCsv" class="export-btn">Export CSV</button>
+        <button id="exportPdf" class="export-btn">Export PDF</button>
+      </div>
+      <div class="card">
+        <table id="paymentsTable">
+          <thead><tr><th>Invoice #</th><th>Date</th><th>Name</th><th>Email</th><th>Amount (₹)</th><th>Method</th><th>Txn ID</th></tr></thead>
+          <tbody></tbody>
+        </table>
       </div>
     </section>
 
@@ -289,7 +234,26 @@
     </footer>
   </div>
 
+  <!-- Payment Success Modal -->
+  <div id="modalBackdrop" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="paySuccessTitle">
+    <div class="modal">
+      <header>
+        <h3 id="paySuccessTitle">Payment Successful ✅</h3>
+        <button id="closeModal" class="close">Close</button>
+      </header>
+      <p>Thank you for your support! Your payment was received.</p>
+      <div class="actions">
+        <button id="downloadInvoice" class="btn">Download Invoice (PDF)</button>
+      </div>
+    </div>
+    <canvas id="confetti" style="position:fixed; inset:0; pointer-events:none"></canvas>
+  </div>
+
+  <!-- tiny ding sound (base64 wav) -->
+  <audio id="ding" preload="auto" src="data:audio/wav;base64,UklGRoQAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABYAaW1hZ2UAAABkAAAAAAAAPw8PDw8PDw8PDw8PDw8P"></audio>
+
   <script>
+    // THEME
     (function() {
       const root = document.documentElement;
       const key = 'theme-preference';
@@ -304,12 +268,146 @@
         root.setAttribute('data-theme', next);
         localStorage.setItem(key, next);
       });
+      document.getElementById('year').textContent = new Date().getFullYear();
     })();
 
-    document.getElementById('year').textContent = new Date().getFullYear();
+    // SIMPLE CONFETTI
+    function burstConfetti(){
+      const canvas = document.getElementById('confetti');
+      const ctx = canvas.getContext('2d');
+      const W = canvas.width = innerWidth; const H = canvas.height = innerHeight;
+      const pieces = Array.from({length: 100}, () => ({
+        x: Math.random()*W, y: Math.random()*-H*0.2, r: 2+Math.random()*4, vx: -2+Math.random()*4, vy: 2+Math.random()*3, a: Math.random()*Math.PI
+      }));
+      let t=0; const id = setInterval(()=>{
+        ctx.clearRect(0,0,W,H);
+        pieces.forEach(p=>{ p.x+=p.vx; p.y+=p.vy; p.vy+=0.03; p.a+=0.1; ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.a); ctx.fillStyle = `hsl(${(p.x+p.y+t)%360} 90% 60%)`; ctx.fillRect(-p.r,-p.r, p.r*2, p.r*2); ctx.restore(); });
+        if((t+=1)>160){ clearInterval(id); ctx.clearRect(0,0,W,H); }
+      }, 16);
+    }
+
+    // INVOICE + STORAGE
+    function generateInvoicePDF({invoice, name, email, amount, method, txid, date}){
+      const { jsPDF } = window.jspdf; const doc = new jsPDF();
+      doc.setFontSize(18); doc.text('Invoice', 20, 18);
+      doc.setFontSize(12); doc.text('iamfardinsk', 20, 26); doc.text('Official Payment Receipt', 20, 32);
+      doc.text(`Invoice #: ${invoice}`, 20, 46); doc.text(`Date: ${date}`, 120, 46);
+      doc.text(`Billed To: ${name}`, 20, 58); doc.text(`Email: ${email||'-'}`, 20, 66);
+      doc.text(`Amount: ₹${amount}`, 20, 82); doc.text(`Method: ${method}`, 20, 90); doc.text(`Transaction ID: ${txid}`, 20, 98);
+      doc.line(20, 104, 190, 104); doc.text('Thank you for your support!', 20, 116);
+      doc.save(`Invoice_${invoice}.pdf`);
+    }
+
+    function savePayment(record){
+      const data = JSON.parse(localStorage.getItem('payments')||'[]');
+      data.unshift(record); localStorage.setItem('payments', JSON.stringify(data));
+      renderTable(data);
+    }
+
+    function renderTable(data){
+      const tbody = document.querySelector('#paymentsTable tbody');
+      tbody.innerHTML = data.map(r=>`<tr><td>${r.invoice}</td><td>${r.date}</td><td>${r.name}</td><td>${r.email||''}</td><td>${r.amount}</td><td>${r.method}</td><td>${r.txid}</td></tr>`).join('');
+    }
+
+    function filterPayments(q){
+      const data = JSON.parse(localStorage.getItem('payments')||'[]');
+      const t = q.toLowerCase();
+      const filtered = data.filter(r => Object.values(r).join(' ').toLowerCase().includes(t));
+      renderTable(filtered);
+    }
+
+    // ADMIN TOGGLE (show when hash=#admin)
+    function checkAdmin(){ document.getElementById('admin').style.display = location.hash === '#admin' ? 'block':'none'; }
+    window.addEventListener('hashchange', checkAdmin); checkAdmin();
+
+    // EXPORT CSV
+    function exportCSV(){
+      const data = JSON.parse(localStorage.getItem('payments')||'[]');
+      const rows = [['Invoice','Date','Name','Email','Amount','Method','TxnID'], ...data.map(r=>[r.invoice,r.date,r.name,r.email,r.amount,r.method,r.txid])];
+      const csv = rows.map(r=>r.map(x=>`"${String(x).replace(/"/g,'""')}"`).join(',')).join('\n');
+      const blob = new Blob([csv], {type:'text/csv'}); const url = URL.createObjectURL(blob);
+      const a = Object.assign(document.createElement('a'), {href:url, download:'payments.csv'}); a.click(); URL.revokeObjectURL(url);
+    }
+
+    // EXPORT PDF (table)
+    function exportPDF(){
+      const { jsPDF } = window.jspdf; const doc = new jsPDF(); let y=16;
+      doc.setFontSize(14); doc.text('Payments', 14, y); y+=8; doc.setFontSize(10);
+      const data = JSON.parse(localStorage.getItem('payments')||'[]');
+      data.slice(0, 35).forEach(r=>{ doc.text(`${r.invoice}  ${r.date}  ${r.name}  ₹${r.amount}  ${r.method}`, 14, (y+=6)); });
+      doc.save('payments.pdf');
+    }
+
+    // PAYMENT FLOW (simulated success)
+    const payBtn = document.getElementById('payNow');
+    const modal = document.getElementById('modalBackdrop');
+    const closeModal = document.getElementById('closeModal');
+    const ding = document.getElementById('ding');
+    const downloadInvoiceBtn = document.getElementById('downloadInvoice');
+    let lastRecord = null;
+
+    function showModal(){ modal.style.display='flex'; burstConfetti(); try{ ding.currentTime=0; ding.play(); }catch(e){} setTimeout(()=>{ modal.style.display='none'; }, 3000); }
+    function hideModal(){ modal.style.display='none'; }
+
+    closeModal.addEventListener('click', hideModal);
+
+    payBtn.addEventListener('click', () => {
+      // Start loading
+      payBtn.classList.add('loading');
+      // simulate 2.2s processing
+      setTimeout(() => {
+        payBtn.classList.remove('loading');
+        const name = document.getElementById('payerName').value || 'Customer';
+        const email = document.getElementById('payerEmail').value || '';
+        const amount = Number(document.getElementById('amountInr').value || 0) || 100;
+        const invoice = 'INV' + Math.floor(100000 + Math.random()*900000);
+        const txid = 'TXN' + Math.floor(100000 + Math.random()*900000);
+        const date = new Date().toLocaleString();
+        lastRecord = { invoice, date, name, email, amount, method: 'Manual/Simulated', txid };
+        savePayment(lastRecord);
+        showModal();
+      }, 2200);
+    });
+
+    downloadInvoiceBtn.addEventListener('click', () => { if(lastRecord) generateInvoicePDF(lastRecord); });
+
+    document.getElementById('searchPayments').addEventListener('input', (e)=> filterPayments(e.target.value));
+    document.getElementById('exportCsv').addEventListener('click', exportCSV);
+    document.getElementById('exportPdf').addEventListener('click', exportPDF);
+
+    // OPTIONAL: Client-side avatar upload (no server, just preview)
+    // Add an invisible file input to enable quick change
+    (function(){
+      const fi = document.createElement('input'); fi.type = 'file'; fi.accept = 'image/*'; fi.style.display='none'; document.body.appendChild(fi);
+      const avatar = document.getElementById('avatarImg');
+      avatar.title='Click to change photo'; avatar.style.cursor='pointer';
+      avatar.addEventListener('click', ()=> fi.click());
+      fi.addEventListener('change', (e)=>{
+        const f = e.target.files[0]; if(!f) return; const url = URL.createObjectURL(f); avatar.src = url;
+      });
+    })();
+
+    // NOTE for WebView deep-links: Android should use shouldOverrideUrlLoading to open apps.
   </script>
+
+  <!--
+    ─────────────────────────────────────────────────────────────────
+    BACKEND (optional, for real payments + auto-email invoices)
+    1) Stripe: create Checkout, listen to webhook checkout.session.completed
+    2) PayPal: listen to PAYMENT.SALE.COMPLETED webhook
+    3) Razorpay/UPI: listen to payment.captured webhook
+
+    Example Node.js (Express) sketch:
+
+    import express from 'express'; import bodyParser from 'body-parser';
+    const app = express(); app.use(bodyParser.json());
+
+    app.post('/webhooks/stripe', (req,res)=>{ const evt = req.body; if(evt.type==='checkout.session.completed'){ /* create invoice PDF + email */ } res.sendStatus(200); });
+    app.post('/webhooks/paypal', (req,res)=>{ /* verify + invoice */ res.sendStatus(200) });
+    app.post('/webhooks/razorpay', (req,res)=>{ /* verify signature + invoice */ res.sendStatus(200) });
+
+    // Send email with nodemailer
+    // Save records to DB for admin dashboard
+  -->
 </body>
 </html>
-
-
-
